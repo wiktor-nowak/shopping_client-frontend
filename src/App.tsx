@@ -1,24 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect, ReactNode } from "react";
+import "./App.css";
+import List, { type Item } from "./components/List";
+import Form from "./components/Form";
+
+const USERS_URL = "http://localhost:5052/users";
 
 function App() {
+  const [items, setItems] = useState<Item[]>([]);
+  const renderItem = (item: Item): ReactNode => (
+    <p>
+      name: {item.name}, category: {item.cat}, quantity: {item.quant}
+    </p>
+  );
+  useEffect(() => {
+    fetch(USERS_URL)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        setItems(res);
+      })
+      .catch((err) => console.warn(err));
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Hello world!</h1>
+      <List items={items} renderItem={renderItem} />
+      <Form />
     </div>
   );
 }
