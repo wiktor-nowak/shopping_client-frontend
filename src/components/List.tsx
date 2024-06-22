@@ -1,15 +1,17 @@
-import { ReactElement, ReactNode } from "react";
+import { ReactElement } from "react";
 import { type Item } from "../App";
+import RenderedItem from "./RenderedItem";
 
 interface ListProps<Item> {
   items: Item[];
-  renderItem: (item: Item) => ReactNode;
 }
 
-const List = ({ items, renderItem }: ListProps<Item>): ReactElement => (
+const List = ({ items }: ListProps<Item>): ReactElement => (
   <ul>
     {items.map((item) => (
-      <li key={item.id}>{renderItem(item)}</li>
+      <li key={item.item_id}>
+        <RenderedItem {...item} />
+      </li>
     ))}
   </ul>
 );

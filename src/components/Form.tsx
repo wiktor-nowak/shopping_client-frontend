@@ -1,23 +1,30 @@
-import { type ChangeEvent, ReactElement, useState } from "react";
-import Select, { SingleValue, Props, GroupBase } from "react-select";
+import { type ChangeEvent, ReactElement, useState, FormEvent } from "react";
+import Select, { SingleValue } from "react-select";
+import { ITEM_URL } from "../utilities/api";
+import { type Item } from "../App";
 
 const CATEGORIES: any = [
-  { value: "hygiene", label: "Hygiene" },
-  { value: "groceries", label: "Groceries" },
-  { value: "drinks", label: "Drinks" },
-  { value: "homedecor", label: "Home&Decor" }
+  { value: "Hygiene", label: "Hygiene" },
+  { value: "Groceries", label: "Groceries" },
+  { value: "Drinks", label: "Drinks" },
+  { value: "Home&Decor", label: "Home&Decor" }
 ];
 
 interface FormItem {
   name: string;
-  category: string;
+  category: { value: string; label: string };
   quantity: number;
 }
 
-const Form = (): ReactElement => {
+interface FormProps {
+  items: Item[];
+  setItems: (items: Item[]) => void;
+}
+
+const Form = ({ items, setItems }: FormProps): ReactElement => {
   const [formState, setFormState] = useState<FormItem>({
     name: "",
-    category: "",
+    category: { value: "", label: "" },
     quantity: 0
   });
 
@@ -29,14 +36,33 @@ const Form = (): ReactElement => {
     }));
   };
 
-  const onChangeFormSelect = (value: SingleValue<string>) =>
+  const onChangeFormSelect = (selectedItem: SingleValue<any>) =>
     setFormState((prevFormState) => ({
       ...prevFormState,
-      category: value as string
+      category: selectedItem
     }));
 
+  const addToList = (e: FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const savedFormValues = {
+      item_id: formState.name + formState.category.value,
+      name: formState.name,
+      category: formState.category.value,
+      quantity: formState.quantity
+    };
+    if (Object.values(formState).every((v) => v)) {
+      fetch(ITEM_URL, {
+        method: "POST",
+        body: JSON.stringify(savedFormValues),
+        headers: { "Content-type": "application/json; charset=UTF-8" }
+      });
+    }
+    setItems([...items, savedFormValues]);
+  };
+
   return (
-    <form>
+    <form onSubmit={(e) => addToList(e)}>
       <label htmlFor="name">Name: </label>
       <input
         name="name"
@@ -53,6 +79,7 @@ const Form = (): ReactElement => {
         className="custom-input"
         onChange={(e) => onChangeFormSelect(e)}
         value={formState.category}
+        unstyled
       />
       <label htmlFor="name">Quantity: </label>
       <input
@@ -63,6 +90,7 @@ const Form = (): ReactElement => {
         type="number"
         value={formState.quantity}
       />
+      <button type="submit">Add to List!</button>
     </form>
   );
 };

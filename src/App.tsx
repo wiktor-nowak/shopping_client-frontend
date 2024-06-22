@@ -1,46 +1,39 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import List from "./components/List";
 import Form from "./components/Form";
-
-const USERS_URL = "http://localhost:5052/users";
+import { ITEMS_URL } from "./utilities/api";
 
 export interface Item extends Object {
-  id: number;
+  item_id: string;
   name: string;
-  cat: string;
-  quant: number;
+  category: string;
+  quantity: number;
 }
 
 function App() {
-  const [items, setItems] = useState<Item[]>([
-    {
-      id: 1,
-      name: "Soap",
-      cat: "Hygiene",
-      quant: 2
-    }
-  ]);
-  const renderItem = (item: Item): ReactNode => (
-    <p>
-      name: {item.name}, category: {item.cat}, quantity: {item.quant}
-    </p>
-  );
-  useEffect(() => {
-    fetch(USERS_URL)
+  const [items, setItems] = useState<Item[]>([]);
+
+  console.log(items);
+
+  const fetchItems = async () => {
+    await fetch(ITEMS_URL)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
         setItems(res);
       })
       .catch((err) => console.warn(err));
+  };
+
+  useEffect(() => {
+    fetchItems();
   }, []);
 
   return (
     <div className="App">
-      <h1>Hello world!</h1>
-      <List items={items} renderItem={renderItem} />
-      <Form />
+      <h1>Shopping list</h1>
+      <Form items={items} setItems={setItems} />
+      <List items={items} />
     </div>
   );
 }
