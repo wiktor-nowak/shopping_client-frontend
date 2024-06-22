@@ -1,15 +1,9 @@
 import { ReactElement, ReactNode } from "react";
+import { type Item } from "../App";
 
 interface ListProps<Item> {
   items: Item[];
   renderItem: (item: Item) => ReactNode;
-}
-
-export interface Item extends Object {
-  id: number;
-  name: string;
-  cat: string;
-  quant: number;
 }
 
 const List = ({ items, renderItem }: ListProps<Item>): ReactElement => (
