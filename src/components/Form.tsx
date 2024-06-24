@@ -1,18 +1,13 @@
-import { type ChangeEvent, ReactElement, useState, FormEvent } from "react";
-import Select, { SingleValue } from "react-select";
+import { type ChangeEvent, ReactElement, useState, type FormEvent, useEffect } from "react";
+import Dropdown, { Option } from "react-dropdown";
 import { ITEM_URL } from "../utilities/api";
 import { type Item } from "../App";
 
-const CATEGORIES: any = [
-  { value: "Hygiene", label: "Hygiene" },
-  { value: "Groceries", label: "Groceries" },
-  { value: "Drinks", label: "Drinks" },
-  { value: "Home&Decor", label: "Home&Decor" }
-];
+const CATEGORIES: string[] = ["Hygiene", "Groceries", "Drinks", "Home&Decor"];
 
 interface FormItem {
   name: string;
-  category: { value: string; label: string };
+  category: string;
   quantity: number;
 }
 
@@ -24,7 +19,7 @@ interface FormProps {
 const Form = ({ items, setItems }: FormProps): ReactElement => {
   const [formState, setFormState] = useState<FormItem>({
     name: "",
-    category: { value: "", label: "" },
+    category: "",
     quantity: 0
   });
 
@@ -32,34 +27,34 @@ const Form = ({ items, setItems }: FormProps): ReactElement => {
     const { name, value } = e.target as HTMLInputElement;
     setFormState((prevFormState) => ({
       ...prevFormState,
-      [name]: value
+      [name]: name === "quantity" ? Number(value) : value
     }));
   };
 
-  const onChangeFormSelect = (selectedItem: SingleValue<any>) =>
+  const onChangeFormDropdown = (option: Option) =>
     setFormState((prevFormState) => ({
       ...prevFormState,
-      category: selectedItem
+      category: option.value
     }));
 
-  const addToList = (e: FormEvent) => {
+  const addToList = async (e: FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const savedFormValues = {
-      item_id: formState.name + formState.category.value,
-      name: formState.name,
-      category: formState.category.value,
-      quantity: formState.quantity
-    };
     if (Object.values(formState).every((v) => v)) {
-      fetch(ITEM_URL, {
+      console.log(formState);
+      await fetch(ITEM_URL, {
         method: "POST",
-        body: JSON.stringify(savedFormValues),
+        body: JSON.stringify(formState),
         headers: { "Content-type": "application/json; charset=UTF-8" }
-      });
+      })
+        .then((res) => res.json())
+        .then((res) => setItems([...items, res]));
     }
-    setItems([...items, savedFormValues]);
   };
+
+  useEffect(() => {
+    console.log(formState);
+  }, [formState]);
 
   return (
     <form onSubmit={(e) => addToList(e)}>
@@ -72,14 +67,12 @@ const Form = ({ items, setItems }: FormProps): ReactElement => {
         value={formState.name}
       />
       <label htmlFor="name">Category: </label>
-      <Select
+      <Dropdown
         options={CATEGORIES}
-        name="category"
         placeholder="Define category"
         className="custom-input"
-        onChange={(e) => onChangeFormSelect(e)}
+        onChange={onChangeFormDropdown}
         value={formState.category}
-        unstyled
       />
       <label htmlFor="name">Quantity: </label>
       <input

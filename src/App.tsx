@@ -14,8 +14,6 @@ export interface Item extends Object {
 function App() {
   const [items, setItems] = useState<Item[]>([]);
 
-  console.log(items);
-
   const fetchItems = async () => {
     await fetch(ITEMS_URL)
       .then((res) => res.json())
