@@ -1,16 +1,17 @@
 import { ReactElement } from "react";
 import { type Item } from "../App";
-import RenderedItem from "./RenderedItem";
+import Row from "./Row";
 
-interface ListProps<Item> {
+interface ListProps {
   items: Item[];
+  deleteItem: (id: string) => void;
 }
 
-const List = ({ items }: ListProps<Item>): ReactElement => (
+const List = ({ items, deleteItem }: ListProps): ReactElement => (
   <ul>
     {items.map((item) => (
       <li key={item.item_id}>
-        <RenderedItem {...item} />
+        <Row item={item} deleteItem={deleteItem} />
       </li>
     ))}
   </ul>

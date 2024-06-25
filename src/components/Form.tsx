@@ -52,10 +52,6 @@ const Form = ({ items, setItems }: FormProps): ReactElement => {
     }
   };
 
-  useEffect(() => {
-    console.log(formState);
-  }, [formState]);
-
   return (
     <form onSubmit={(e) => addToList(e)}>
       <label htmlFor="name">Name: </label>
